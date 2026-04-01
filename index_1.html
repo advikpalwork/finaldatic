@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Datic Currency — Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --accent: #00ff88;
+      --accent2: #00cc66;
+      --text: #e8fff4;
+      --muted: rgba(232,255,244,0.45);
+    }
+
+    html, body {
+      height: 100%; width: 100%;
+      overflow-x: hidden;
+      background: #000c05;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+    }
+
+    #bg { position: fixed; inset: 0; z-index: 0; }
+
+    #noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      opacity: .04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    #grid {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,255,136,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,.035) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    #page {
+      position: relative; z-index: 10;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .logo {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(10px, 1.3vw, 13px);
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 52px;
+      opacity: 0;
+      animation: fadeUp .8s .2s forwards;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2.4s infinite;
+    }
+
+    .headline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 900;
+      font-size: clamp(58px, 11vw, 130px);
+      line-height: .9;
+      text-align: center;
+      letter-spacing: -.03em;
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeUp .9s .4s forwards;
+    }
+    .headline .line1 { display: block; color: var(--text); }
+    .headline .line2 {
+      display: block;
+      font-style: italic;
+      font-weight: 300;
+      background: linear-gradient(90deg, var(--accent), #00ffaa, var(--accent2), var(--accent));
+      background-size: 300%;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 5s linear infinite;
+    }
+
+    .tagline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .01em;
+      opacity: 0;
+      animation: fadeUp .9s .55s forwards;
+    }
+
+    .divider {
+      width: 48px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 20px auto 48px;
+      opacity: 0;
+      animation: fadeUp .9s .6s forwards;
+    }
+
+    .countdown {
+      display: flex; gap: clamp(14px, 3.5vw, 44px);
+      align-items: flex-start;
+      margin-bottom: 64px;
+      opacity: 0;
+      animation: fadeUp .9s .72s forwards;
+    }
+    .cd-block { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .cd-num {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(42px, 7vw, 82px);
+      color: var(--text);
+      line-height: 1;
+      min-width: 2ch;
+      text-align: center;
+      position: relative;
+    }
+    .cd-num::after {
+      content: '';
+      position: absolute; bottom: -5px; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .cd-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: .75;
+    }
+    .cd-sep {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 300;
+      font-size: clamp(32px, 5.5vw, 64px);
+      color: var(--accent);
+      opacity: .35;
+      margin-top: 2px;
+    }
+
+    .features {
+      display: flex; flex-wrap: wrap;
+      justify-content: center; gap: 10px;
+      max-width: 680px;
+      margin-bottom: 56px;
+      opacity: 0;
+      animation: fadeUp .9s .88s forwards;
+    }
+    .pill {
+      padding: 8px 17px;
+      border: 1px solid rgba(0,255,136,.2);
+      border-radius: 100px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      color: var(--muted);
+      background: rgba(0,255,136,.04);
+      backdrop-filter: blur(8px);
+      transition: all .28s;
+      cursor: default;
+    }
+    .pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,255,136,.09);
+      box-shadow: 0 0 18px rgba(0,255,136,.13);
+    }
+
+    .notify-wrap {
+      opacity: 0;
+      animation: fadeUp .9s 1.05s forwards;
+      display: flex; flex-direction: column; align-items: center; gap: 13px;
+    }
+    .notify-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .notify-form {
+      display: flex;
+      border: 1px solid rgba(0,255,136,.28);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .notify-form input {
+      background: rgba(0,255,136,.04);
+      border: none; outline: none;
+      padding: 11px 18px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      width: 230px;
+    }
+    .notify-form input::placeholder { color: var(--muted); }
+    .notify-form button {
+      background: var(--accent);
+      border: none; cursor: pointer;
+      padding: 11px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: .1em; color: #000;
+      transition: background .2s, letter-spacing .2s;
+    }
+    .notify-form button:hover { background: #00ffaa; letter-spacing: .15em; }
+
+    footer {
+      position: fixed; bottom: 22px; left: 0; right: 0;
+      display: flex; justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(0,255,136,.25); z-index: 20;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 300% center; }
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 7px var(--accent); opacity:1; }
+      50%      { box-shadow: 0 0 22px var(--accent); opacity:.5; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="noise"></div>
+<div id="grid"></div>
+
+<div id="page">
+  <div class="logo"><span class="logo-dot"></span>Datic Currency</div>
+
+  <h1 class="headline">
+    <span class="line1">Coming</span>
+    <span class="line2">Soon.</span>
+  </h1>
+
+  <p class="tagline">The world's first financial market for data.</p>
+  <div class="divider"></div>
+
+  <div class="countdown">
+    <div class="cd-block"><span class="cd-num" id="cd-d">00</span><span class="cd-label">Days</span></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-label">Hours</span></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-label">Mins</span></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-label">Secs</span></div>
+  </div>
+
+  <div class="features">
+    <div class="pill">↗ Data Tokenization</div>
+    <div class="pill">⟳ Data Series Model</div>
+    <div class="pill">◈ Dynamic Pricing Engine</div>
+    <div class="pill">✦ Guaranteed Buy-Back</div>
+    <div class="pill">⬡ Data Escrow & Insurance</div>
+    <div class="pill">◎ Public Market Trading</div>
+    <div class="pill">⌘ Corporate Auction</div>
+  </div>
+
+  <div class="notify-wrap">
+    <span class="notify-label">Get early access</span>
+    <div class="notify-form">
+      <input type="email" placeholder="your@email.com" />
+      <button>Notify Me</button>
+    </div>
+  </div>
+</div>
+
+<footer>Daticurrency.com &nbsp;·&nbsp; © 2025</footer>
+
+<script>
+  /* Animated gradient background */
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+  const blobs = [
+    {x:.2,y:.3,r:.5,c:[0,80,30], s:.00030},
+    {x:.8,y:.7,r:.4,c:[0,50,20], s:.00050},
+    {x:.5,y:.5,r:.6,c:[0,30,12], s:.00020},
+    {x:.1,y:.8,r:.35,c:[0,100,40],s:.00070},
+    {x:.9,y:.2,r:.3,c:[0,60,25], s:.00040},
+  ];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function draw() {
+    t++;
+    ctx.fillStyle = '#000c05'; ctx.fillRect(0,0,W,H);
+    blobs.forEach((b,i) => {
+      const ox = Math.sin(t*b.s*1.7+i)*.18, oy = Math.cos(t*b.s*2.3+i*1.3)*.18;
+      const cx = (b.x+ox)*W, cy = (b.y+oy)*H, r = b.r*Math.min(W,H);
+      const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+      const [ri,gi,bi] = b.c, pulse = .6+.4*Math.sin(t*b.s*5+i);
+      g.addColorStop(0,`rgba(${ri},${gi+20*pulse},${bi+10*pulse},0.26)`);
+      g.addColorStop(1,`rgba(${ri},${gi},${bi},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  /* Floating particles */
+  const pCanvas = document.createElement('canvas');
+  pCanvas.style.cssText = 'position:fixed;inset:0;z-index:2;pointer-events:none;';
+  document.body.appendChild(pCanvas);
+  const pc = pCanvas.getContext('2d');
+  function resizeP() { pCanvas.width = window.innerWidth; pCanvas.height = window.innerHeight; }
+  window.addEventListener('resize', resizeP); resizeP();
+  const pts = Array.from({length:55},()=>({
+    x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight,
+    r:Math.random()*1.3+.3, vy:-(Math.random()*.38+.08),
+    vx:(Math.random()-.5)*.18, a:Math.random()*.45+.08,
+  }));
+  function drawP() {
+    pc.clearRect(0,0,pCanvas.width,pCanvas.height);
+    pts.forEach(p => {
+      p.y += p.vy; p.x += p.vx;
+      if (p.y<-10) { p.y = pCanvas.height+10; p.x = Math.random()*pCanvas.width; }
+      pc.beginPath(); pc.arc(p.x,p.y,p.r,0,Math.PI*2);
+      pc.fillStyle = `rgba(0,255,136,${p.a})`; pc.fill();
+    });
+    requestAnimationFrame(drawP);
+  }
+  drawP();
+
+  /* Countdown — 4 months from today */
+  const target = new Date();
+  target.setMonth(target.getMonth() + 4);
+  function tick() {
+    const diff = target - new Date();
+    if (diff <= 0) return;
+    const d = Math.floor(diff/864e5);
+    const h = Math.floor((diff%864e5)/36e5);
+    const m = Math.floor((diff%36e5)/6e4);
+    const s = Math.floor((diff%6e4)/1e3);
+    document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* Notify */
+  document.querySelector('.notify-form button').addEventListener('click', () => {
+    const inp = document.querySelector('.notify-form input');
+    if (inp.value.includes('@')) {
+      inp.value = ''; inp.placeholder = "You're on the list ✓"; inp.style.color = '#00ff88';
+    }
+  });
+</script>
+</body>
+</html>
